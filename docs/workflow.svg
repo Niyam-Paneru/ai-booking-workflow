@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1540 720" role="img" aria-labelledby="title desc">
   <title id="title">AI booking state and decision flow</title>
-  <desc id="desc">The BookingSession state machine moves from greeting to qualification, provider-backed slot offering, selection, exact confirmation, and booking. Ineligible or uncertain qualification, empty availability, and unoffered choices hand off. Confirmation mismatch raises an error without creating a booking. Changing the slot loops back to offer slot.</desc>
+  <desc id="desc">The BookingSession state machine moves from greeting to qualification, slot offering, selection, exact confirmation, and booking. Ineligible or uncertain qualification, empty availability, and unoffered choices hand off. Confirmation mismatch raises an error without creating a booking. Changing the slot loops back to offer slot.</desc>
 
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
@@ -49,7 +49,7 @@
   <text class="label" x="695" y="153">OFFER_SLOT</text>
 
   <rect class="input" x="806" y="30" width="178" height="54"/>
-  <text class="label" x="895" y="53">provider slots</text>
+  <text class="label" x="895" y="53">supplied slots</text>
   <text class="small" x="895" y="72">list[str]</text>
 
   <rect class="action" x="806" y="114" width="178" height="68"/>
@@ -146,7 +146,7 @@
   <text class="edge" x="792" y="226">change_slot() · clear selected_slot</text>
 
   <path class="dash" d="M895 182 V456 H1359 V486"/>
-  <text class="edge-red" x="908" y="205">non-string provider slot</text>
+  <text class="edge-red" x="908" y="205">non-string supplied slot</text>
 
   <line x1="40" y1="626" x2="1500" y2="626" stroke="#cbd5e1"/>
   <text x="40" y="654" class="note">Not implemented in this public core: provider SDK · persistence · stale-slot revalidation · external calendar write.</text>
