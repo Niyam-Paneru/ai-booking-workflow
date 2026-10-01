@@ -1,59 +1,42 @@
 # AI Booking Workflow
 
-**Calendars are simple right up until a human says “sometime Friday afternoon.”**
+**Calendars are simple until somebody says “Friday-ish, after lunch, but not too late.”**
 
-This repo is a small public slice of the booking logic behind DentSignal. It shows a deterministic booking state machine where the assistant can talk, offer, confirm, or hand off — but cannot magically invent availability.
+This is the public booking-truth slice from my DentSignal work. The point is not to build another calendar SDK. The point is to make sure an AI assistant cannot smoothly talk its way into booking something that never existed.
 
-## Flow
+![Booking workflow](docs/workflow.svg)
 
-```mermaid
-stateDiagram-v2
-    [*] --> GREETING
-    GREETING --> QUALIFY: caller ready
-    QUALIFY --> OFFER_SLOT: booking intent + eligible
-    QUALIFY --> HANDOFF: uncertain / unsupported
-    OFFER_SLOT --> CONFIRM: caller picks an offered slot
-    OFFER_SLOT --> HANDOFF: ambiguous choice
-    CONFIRM --> END: exact confirmation
-    CONFIRM --> OFFER_SLOT: caller changes mind
-    HANDOFF --> END
-```
+## The contract
 
-The rule that matters: **no booking side effect exists until the caller confirms a slot that was actually offered.**
+- only offer slots the system actually received;
+- low confidence goes to a human;
+- confirmation must match the slot the caller selected;
+- the selected slot must still be one of the offered slots;
+- empty availability is not permission to improvise.
 
-## What it demonstrates
+The code is split by responsibility instead of hiding everything in one “smart” file: availability cleanup, guardrails, state models, and the conversation FSM are separate.
 
-- explicit finite-state call flow;
-- no invented slots;
-- ambiguous input goes to a human instead of becoming fake certainty;
-- confirmation is content-bound to the offered slot;
-- state transitions are deterministic and testable.
+## Why I care about this
 
-## Run it
+Voice agents can sound extremely confident while being operationally wrong. A pleasant sentence does not make a made-up appointment less annoying.
 
-```bash
-PYTHONPATH=src python -m unittest discover -s tests
-```
+So this repo makes the boring thing explicit: **the action must be traceable to verified state.**
 
-## Example
+## What is inside
 
-```python
-from booking_workflow.fsm import BookingSession
+| Area | Purpose |
+|---|---|
+| `src/booking_workflow/models.py` | small state/value types |
+| `availability.py` | normalize provider slots without inventing any |
+| `guardrails.py` | handoff and exact-confirmation rules |
+| `fsm.py` | deterministic booking conversation |
+| `tests/` | transition, availability, and guardrail behavior |
+| `docs/` | design choices and workflow |
 
-session = BookingSession()
-session.begin()
-session.qualify(eligible=True)
-session.offer(["2026-10-03T10:00", "2026-10-03T11:00"])
-session.choose("2026-10-03T11:00")
-booking = session.confirm("2026-10-03T11:00")
+## The escape hatch is part of the product
 
-print(booking)
-```
+A human handoff is not a failed AI demo. It is the correct result when the system cannot prove the next action.
 
-## What is deliberately missing
+There is no patient data, calendar credential, provider SDK, or production telephony in this public slice. Those belong in the private system, where they can be handled with the controls they require.
 
-No calendar provider, no patient data, no clinic credentials, no PHI, and no “AI guessed your dentist is free at 3 PM” nonsense.
-
-## Provenance
-
-Sanitized and rewritten from DentSignal's booking/call-flow work, including the private FSM and public booking path.
+> The AI is allowed to be charming. The booking is not allowed to be fictional.
