@@ -1,21 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
 
-
-class State(str, Enum):
-    GREETING = "greeting"
-    QUALIFY = "qualify"
-    OFFER_SLOT = "offer_slot"
-    CONFIRM = "confirm"
-    HANDOFF = "handoff"
-    END = "end"
-
-
-@dataclass(frozen=True)
-class Booking:
-    slot: str
+from .availability import normalize_slots
+from .guardrails import qualification_requires_handoff, validate_confirmation
+from .models import Booking, State
 
 
 @dataclass
@@ -32,20 +21,21 @@ class BookingSession:
 
     def qualify(self, *, eligible: bool, confident: bool = True) -> State:
         self._require(State.QUALIFY)
-        if not eligible or not confident:
-            self.state = State.HANDOFF
-        else:
-            self.state = State.OFFER_SLOT
+        self.state = (
+            State.HANDOFF
+            if qualification_requires_handoff(eligible=eligible, confident=confident)
+            else State.OFFER_SLOT
+        )
         return self.state
 
     def offer(self, slots: list[str]) -> tuple[str, ...]:
         self._require(State.OFFER_SLOT)
-        cleaned = list(dict.fromkeys(slot.strip() for slot in slots if slot.strip()))
+        cleaned = normalize_slots(slots)
         if not cleaned:
             self.state = State.HANDOFF
             return ()
-        self.offered_slots = cleaned
-        return tuple(cleaned)
+        self.offered_slots = list(cleaned)
+        return cleaned
 
     def choose(self, slot: str) -> State:
         self._require(State.OFFER_SLOT)
@@ -59,10 +49,11 @@ class BookingSession:
 
     def confirm(self, slot: str) -> Booking:
         self._require(State.CONFIRM)
-        if self.selected_slot is None or slot != self.selected_slot:
-            raise ValueError("confirmation_does_not_match_selected_slot")
-        if slot not in self.offered_slots:
-            raise ValueError("confirmation_slot_was_never_offered")
+        validate_confirmation(
+            selected_slot=self.selected_slot,
+            offered_slots=self.offered_slots,
+            confirmed_slot=slot,
+        )
         booking = Booking(slot=slot)
         self.state = State.END
         return booking
