@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="t d">
+<title id="t">AI booking workflow</title>
+<desc id="d">A seven-step booking path with handoff escape lanes.</desc>
+<rect width="1200" height="300" fill="#0b1020"/>
+<text x="56" y="52" fill="#f8fafc" font-family="Arial,sans-serif" font-size="28" font-weight="700">A booking should survive awkward conversation without inventing reality.</text>
+<path d="M90 160 H1090" stroke="#334155" stroke-width="6" stroke-linecap="round"/>
+<g font-family="Arial,sans-serif" text-anchor="middle">
+  <g><circle cx="110" cy="160" r="28" fill="#60a5fa"/><text x="110" y="168" font-size="20" font-weight="700">1</text><text x="110" y="215" fill="#e2e8f0" font-size="17">greet</text></g>
+  <g><circle cx="280" cy="160" r="28" fill="#38bdf8"/><text x="280" y="168" font-size="20" font-weight="700">2</text><text x="280" y="215" fill="#e2e8f0" font-size="17">qualify</text></g>
+  <g><circle cx="450" cy="160" r="28" fill="#22d3ee"/><text x="450" y="168" font-size="20" font-weight="700">3</text><text x="450" y="215" fill="#e2e8f0" font-size="17">offer real slots</text></g>
+  <g><circle cx="620" cy="160" r="28" fill="#a78bfa"/><text x="620" y="168" font-size="20" font-weight="700">4</text><text x="620" y="215" fill="#e2e8f0" font-size="17">choose</text></g>
+  <g><circle cx="790" cy="160" r="28" fill="#c084fc"/><text x="790" y="168" font-size="20" font-weight="700">5</text><text x="790" y="215" fill="#e2e8f0" font-size="17">confirm exact slot</text></g>
+  <g><circle cx="960" cy="160" r="28" fill="#4ade80"/><text x="960" y="168" font-size="20" font-weight="700">6</text><text x="960" y="215" fill="#e2e8f0" font-size="17">book</text></g>
+</g>
+<path d="M280 132 C280 86 420 86 450 132" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="8 8"/>
+<text x="365" y="92" fill="#fbbf24" font-family="Arial,sans-serif" font-size="15" text-anchor="middle">uncertain? hand off instead</text>
+<text x="1140" y="272" fill="#64748b" font-family="Arial,sans-serif" font-size="13" text-anchor="end">No phantom 3 PM slots were harmed.</text>
+</svg>
