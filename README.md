@@ -39,4 +39,6 @@ A human handoff is not a failed AI demo. It is the correct result when the syste
 
 There is no patient data, calendar credential, provider SDK, or production telephony in this public slice. Those belong in the private system, where they can be handled with the controls they require.
 
+Want to audit the booking truth? Read the [invariants](docs/invariants.md), [failure modes](docs/failure-modes.md), [state table](docs/state-table.md), and [walkthrough](docs/walkthrough.md).
+
 > The AI is allowed to be charming. The booking is not allowed to be fictional.
