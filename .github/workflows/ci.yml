@@ -1,23 +1,32 @@
 name: CI
+
 on:
   pull_request:
   push:
     branches: [main]
+
 permissions:
   contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      - name: Fetch this branch without marketplace actions
+        run: |
+          branch="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
+          git clone --depth 1 --branch "$branch" "https://github.com/$GITHUB_REPOSITORY.git" repo
+      - name: Show runtime
+        working-directory: repo
+        run: python3 --version
       - name: Compile source
-        run: python -m compileall -q src
+        working-directory: repo
+        run: python3 -m compileall -q src
       - name: Run behavior tests
-        run: PYTHONPATH=src python -m unittest discover -s tests
+        working-directory: repo
+        run: PYTHONPATH=src python3 -m unittest discover -s tests
       - name: Verify public documentation
+        working-directory: repo
         run: |
           test -s docs/workflow.svg
           test -s SECURITY.md
