@@ -42,3 +42,12 @@ There is no patient data, calendar credential, provider SDK, or production telep
 Want to audit the booking truth? Read the [invariants](docs/invariants.md), [failure modes](docs/failure-modes.md), [state table](docs/state-table.md), and [walkthrough](docs/walkthrough.md).
 
 > The AI is allowed to be charming. The booking is not allowed to be fictional.
+
+## Inspect deeper
+
+- [Design overview](docs/overview.md)
+- [Why the design looks this way](docs/decisions.md)
+- [How it fails on purpose](docs/failure-modes.md)
+- [Security / privacy boundary](SECURITY.md)
+
+The README is the front door. The interesting arguments are in those files.
