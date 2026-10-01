@@ -1,14 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="t d">
-<title id="t">Booking truth overlap</title><desc id="d">Offered, selected, and still-valid slots overlap to become bookable.</desc>
+<title id="t">AI booking architecture</title><desc id="d">Qualification and provider availability feed an offer; selection and exact confirmation feed a booking, while uncertainty branches to human handoff.</desc>
 <rect width="1200" height="520" fill="#f5f5f1"/>
-<text x="58" y="64" fill="#71716a" font-family="Arial,sans-serif" font-size="14" letter-spacing="3">BOOKING TRUTH</text>
-<text x="58" y="108" fill="#171714" font-family="Georgia,serif" font-size="35">A slot becomes bookable only after three truths agree.</text>
-<circle cx="455" cy="292" r="150" fill="#e4edb0" fill-opacity=".82" stroke="#596e35" stroke-width="2"/>
-<circle cx="625" cy="292" r="150" fill="#dce9de" fill-opacity=".82" stroke="#4f7555" stroke-width="2"/>
-<circle cx="540" cy="385" r="150" fill="#f1d9dc" fill-opacity=".82" stroke="#a4243b" stroke-width="2"/>
-<text x="385" y="245" text-anchor="middle" fill="#171714" font-family="Arial,sans-serif" font-size="20" font-weight="700">offered</text><text x="385" y="270" text-anchor="middle" fill="#4e4e48" font-family="Arial,sans-serif" font-size="15">provider returned it</text>
-<text x="695" y="245" text-anchor="middle" fill="#171714" font-family="Arial,sans-serif" font-size="20" font-weight="700">selected</text><text x="695" y="270" text-anchor="middle" fill="#4e4e48" font-family="Arial,sans-serif" font-size="15">caller chose it</text>
-<text x="540" y="452" text-anchor="middle" fill="#171714" font-family="Arial,sans-serif" font-size="20" font-weight="700">still valid</text>
-<circle cx="540" cy="326" r="52" fill="#171714"/><text x="540" y="321" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="14" letter-spacing="2">BOOK</text><text x="540" y="344" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="13">exact slot</text>
-<text x="1110" y="455" text-anchor="end" fill="#71716a" font-family="Arial,sans-serif" font-size="14">anything else → human handoff</text>
+<text x="56" y="62" fill="#71716a" font-family="Arial,sans-serif" font-size="13" letter-spacing="3">AI BOOKING WORKFLOW</text>
+<text x="56" y="105" fill="#171714" font-family="Georgia,serif" font-size="34">Conversation can be fuzzy. The booking cannot.</text>
+
+<rect x="58" y="175" width="180" height="90" rx="14" fill="#fff" stroke="#171714" stroke-width="2"/>
+<text x="80" y="205" fill="#71716a" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">CALLER</text>
+<text x="80" y="236" fill="#171714" font-family="Arial,sans-serif" font-size="20" font-weight="700">intent + timing</text>
+
+<rect x="305" y="145" width="205" height="150" rx="16" fill="#fff" stroke="#171714" stroke-width="2"/>
+<text x="330" y="178" fill="#71716a" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">QUALIFY</text>
+<text x="330" y="210" fill="#171714" font-family="Georgia,serif" font-size="24">Should we book?</text>
+<text x="330" y="245" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">eligible</text>
+<text x="330" y="270" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">confident enough</text>
+
+<rect x="590" y="145" width="220" height="150" rx="16" fill="#fff" stroke="#171714" stroke-width="2"/>
+<text x="615" y="178" fill="#71716a" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">PROVIDER STATE</text>
+<text x="615" y="210" fill="#171714" font-family="Georgia,serif" font-size="24">Real slots only.</text>
+<text x="615" y="245" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">normalize</text>
+<text x="615" y="270" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">deduplicate</text>
+
+<rect x="890" y="145" width="245" height="150" rx="16" fill="#e4edb0" stroke="#596e35" stroke-width="2"/>
+<text x="915" y="178" fill="#596e35" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">ACTION</text>
+<text x="915" y="210" fill="#171714" font-family="Georgia,serif" font-size="24">Confirm exact slot.</text>
+<text x="915" y="245" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">selected = offered</text>
+<text x="915" y="270" fill="#4e4e48" font-family="Arial,sans-serif" font-size="14">then create booking</text>
+
+<g stroke="#171714" stroke-width="2" fill="none"><path d="M238 220 H305"/><path d="M510 220 H590"/><path d="M810 220 H890"/></g>
+<g fill="#171714"><path d="M297 214 l10 6 -10 6z"/><path d="M582 214 l10 6 -10 6z"/><path d="M882 214 l10 6 -10 6z"/></g>
+
+<rect x="305" y="360" width="505" height="72" rx="14" fill="#f1d9dc" stroke="#a4243b" stroke-width="2"/>
+<text x="330" y="390" fill="#a4243b" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">ANY UNCERTAINTY</text>
+<text x="330" y="416" fill="#171714" font-family="Georgia,serif" font-size="20">Human handoff is the correct outcome.</text>
+<path d="M408 295 V360" stroke="#a4243b" stroke-width="2" stroke-dasharray="7 7"/>
+<path d="M700 295 V360" stroke="#a4243b" stroke-width="2" stroke-dasharray="7 7"/>
 </svg>
