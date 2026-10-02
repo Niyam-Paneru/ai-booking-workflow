@@ -2,22 +2,29 @@
 
 A deterministic booking-state core that only creates a booking value after the caller confirms a slot the system actually offered.
 
-Calendars are easy until someone asks for a time that sounds reasonable but was never available.
+**Calendars are easy until someone books a time the calendar never offered.**
+
+This public sample comes from my broader private voice/receptionist work. It makes the booking rules reviewable on their own; I can build and adapt the surrounding reception workflows, calendar integrations, and applications to a project's needs.
 
 ## Booking state machine
 
 ```mermaid
-stateDiagram-v2
-    [*] --> GREETING
-    GREETING --> QUALIFY: begin()
-    QUALIFY --> OFFER_SLOT: eligible + confident
-    QUALIFY --> HANDOFF: ineligible / uncertain
-    OFFER_SLOT --> HANDOFF: no usable slots
-    OFFER_SLOT --> CONFIRM: choose offered slot
-    OFFER_SLOT --> HANDOFF: choose unoffered slot
-    CONFIRM --> END: exact selected slot confirmed
-    CONFIRM --> OFFER_SLOT: change_slot()
-    HANDOFF --> END: finish_handoff()
+flowchart TB
+    G["<b>GREETING</b>"] -->|begin| Q["<b>QUALIFY</b>"]
+    Q -->|eligible + confident| O["<b>OFFER_SLOT</b>"]
+    Q -->|ineligible or uncertain| H["<b>HANDOFF</b>"]
+    O -->|no slots or unoffered choice| H
+    O -->|choose offered slot| C["<b>CONFIRM</b>"]
+    C -->|change_slot| O
+    C -->|mismatch raises, stay in CONFIRM| C
+    C -->|exact selected slot| B["<b>END</b><br/>Booking created"]
+    H -->|finish_handoff| E["<b>END</b><br/>No booking"]
+    classDef input fill:#e8e6df,stroke:#55534a,color:#20201d,stroke-width:2px;
+    classDef pass fill:#d2e5d8,stroke:#38734d,color:#183923,stroke-width:2px;
+    classDef stop fill:#f4dadd,stroke:#b14253,color:#611c29,stroke-width:2px;
+    class G,Q,O,C input;
+    class B pass;
+    class H,E stop;
 ```
 
 The important boundary is narrow: only an exact confirmation of a previously offered, currently selected slot creates `Booking(slot=...)`. Everything uncertain exits the booking path instead of inventing certainty.
