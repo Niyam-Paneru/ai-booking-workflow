@@ -1,55 +1,41 @@
 # AI Booking Workflow
 
-**Calendars are simple until somebody says “Friday-ish, after lunch, but not too late.”**
+A deterministic booking-state core that only creates a booking after the caller confirms a slot the system actually offered.
 
-This is the public booking-truth slice from my DentSignal work. The point is not to build another calendar SDK. The point is to make sure an AI assistant cannot smoothly talk its way into booking something that never existed.
+## Verify it
 
-![Booking workflow](docs/workflow.svg)
+```bash
+python -m compileall -q src
+PYTHONPATH=src python -m unittest discover -s tests
+```
 
-## The contract
+The repository's [CircleCI configuration](.circleci/config.yml) defines the same compile and behavior-test commands.
 
-- only offer slots the system actually received;
-- low confidence goes to a human;
-- confirmation must match the slot the caller selected;
-- the selected slot must still be one of the offered slots;
-- empty availability is not permission to improvise.
+![Booking state and decision flow](docs/workflow.svg)
 
-The code is split by responsibility instead of hiding everything in one “smart” file: availability cleanup, guardrails, state models, and the conversation FSM are separate.
+## What the workflow enforces
 
-## Why I care about this
+1. `GREETING` can only advance to `QUALIFY`.
+2. Qualification reaches `OFFER_SLOT` only when the caller is eligible **and** confidence is sufficient; otherwise it hands off.
+3. Supplied slots are trimmed and deduplicated without inventing new availability. No usable slots means handoff.
+4. A caller selection reaches `CONFIRM` only when it is one of the stored `offered_slots`; an unknown slot hands off.
+5. Confirmation creates `Booking(slot=...)` only when the confirmed slot exactly matches the selected slot and is still in `offered_slots`.
+6. A confirmation mismatch raises an error and creates no booking. `change_slot()` clears the selection and returns to `OFFER_SLOT`.
 
-Voice agents can sound extremely confident while being operationally wrong. A pleasant sentence does not make a made-up appointment less annoying.
+## Code to inspect
 
-So this repo makes the boring thing explicit: **the action must be traceable to verified state.**
-
-## What is inside
-
-| Area | Purpose |
+| File | Responsibility |
 |---|---|
-| `src/booking_workflow/models.py` | small state/value types |
-| `availability.py` | normalize provider slots without inventing any |
-| `guardrails.py` | handoff and exact-confirmation rules |
-| `fsm.py` | deterministic booking conversation |
-| `tests/` | transition, availability, and guardrail behavior |
-| `docs/` | design choices and workflow |
+| [`availability.py`](src/booking_workflow/availability.py) | Normalize supplied slots without inventing any. |
+| [`guardrails.py`](src/booking_workflow/guardrails.py) | Qualification handoff and exact-confirmation checks. |
+| [`fsm.py`](src/booking_workflow/fsm.py) | Explicit booking states and transitions. |
+| [`models.py`](src/booking_workflow/models.py) | State enum and final `Booking` value. |
+| [`tests/`](tests/) | Availability, transition, and guardrail behavior. |
 
-## The escape hatch is part of the product
+## Boundary
 
-A human handoff is not a failed AI demo. It is the correct result when the system cannot prove the next action.
+This repository demonstrates the booking decision boundary, not a live booking integration. It contains no provider SDK, persistence layer, patient data, clinic credentials, telephony, or external calendar write.
 
-There is no patient data, calendar credential, provider SDK, or production telephony in this public slice. Those belong in the private system, where they can be handled with the controls they require.
+It also does **not** implement stale-slot revalidation. The public implementation ends when the validated state machine creates a `Booking` value; any real provider write would need its own integration and concurrency controls.
 
-Want to audit the booking truth? Read the [invariants](docs/invariants.md), [failure modes](docs/failure-modes.md), [state table](docs/state-table.md), and [walkthrough](docs/walkthrough.md).
-
-> The AI is allowed to be charming. The booking is not allowed to be fictional.
-
-## Inspect deeper
-
-- [Design overview](docs/overview.md)
-- [Why the design looks this way](docs/decisions.md)
-- [Invariants that must survive refactors](docs/invariants.md)
-- [How it fails on purpose](docs/failure-modes.md)
-- [Security / privacy boundary](SECURITY.md)
-- [Where this public slice came from](PROVENANCE.md)
-
-The README is the front door. The interesting arguments are in those files.
+For the exact behavioral contract, see the [state table](docs/state-table.md), [invariants](docs/invariants.md), and [failure modes](docs/failure-modes.md). Provenance is documented in [`PROVENANCE.md`](PROVENANCE.md).
