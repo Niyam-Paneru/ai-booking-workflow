@@ -1,26 +1,34 @@
 # AI Booking Workflow
 
-A deterministic booking-state core that only creates a booking after the caller confirms a slot the system actually offered.
+A deterministic booking-state core that only creates a booking value after the caller confirms a slot the system actually offered.
 
-## Verify it
+Calendars are easy until someone asks for a time that sounds reasonable but was never available.
 
-```bash
-python -m compileall -q src
-PYTHONPATH=src python -m unittest discover -s tests
+## Booking state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> GREETING
+    GREETING --> QUALIFY: begin()
+    QUALIFY --> OFFER_SLOT: eligible + confident
+    QUALIFY --> HANDOFF: ineligible / uncertain
+    OFFER_SLOT --> HANDOFF: no usable slots
+    OFFER_SLOT --> CONFIRM: choose offered slot
+    OFFER_SLOT --> HANDOFF: choose unoffered slot
+    CONFIRM --> END: exact selected slot confirmed
+    CONFIRM --> OFFER_SLOT: change_slot()
+    HANDOFF --> END: finish_handoff()
 ```
 
-The repository's [CircleCI configuration](.circleci/config.yml) defines the same compile and behavior-test commands.
-
-![Booking state and decision flow](docs/workflow.svg)
+The important boundary is narrow: only an exact confirmation of a previously offered, currently selected slot creates `Booking(slot=...)`. Everything uncertain exits the booking path instead of inventing certainty.
 
 ## What the workflow enforces
 
-1. `GREETING` can only advance to `QUALIFY`.
-2. Qualification reaches `OFFER_SLOT` only when the caller is eligible **and** confidence is sufficient; otherwise it hands off.
-3. Supplied slots are trimmed and deduplicated without inventing new availability. No usable slots means handoff.
-4. A caller selection reaches `CONFIRM` only when it is one of the stored `offered_slots`; an unknown slot hands off.
-5. Confirmation creates `Booking(slot=...)` only when the confirmed slot exactly matches the selected slot and is still in `offered_slots`.
-6. A confirmation mismatch raises an error and creates no booking. `change_slot()` clears the selection and returns to `OFFER_SLOT`.
+- `GREETING → QUALIFY` is the only start path.
+- Qualification reaches `OFFER_SLOT` only when the caller is eligible and confidence is sufficient.
+- Supplied slots are trimmed and deduplicated; empty availability hands off instead of becoming a guessed appointment.
+- `CONFIRM` is reachable only after selecting a stored `offered_slot`; an unknown choice hands off.
+- A mismatched confirmation raises an error and creates no booking. `change_slot()` clears the selection and returns to `OFFER_SLOT`.
 
 ## Code to inspect
 
@@ -34,8 +42,8 @@ The repository's [CircleCI configuration](.circleci/config.yml) defines the same
 
 ## Boundary
 
-This repository demonstrates the booking decision boundary, not a live booking integration. It contains no provider SDK, persistence layer, patient data, clinic credentials, telephony, or external calendar write.
+This is the booking decision boundary, not a live booking integration. It contains no provider SDK, persistence layer, patient data, clinic credentials, telephony, or external calendar write.
 
-It also does **not** implement stale-slot revalidation. The public implementation ends when the validated state machine creates a `Booking` value; any real provider write would need its own integration and concurrency controls.
+It also does **not** implement stale-slot revalidation. The public implementation ends when the validated state machine creates a `Booking` value; a real provider write would need its own integration and concurrency controls.
 
-For the exact behavioral contract, see the [state table](docs/state-table.md), [invariants](docs/invariants.md), and [failure modes](docs/failure-modes.md). Provenance is documented in [`PROVENANCE.md`](PROVENANCE.md).
+For the exact behavioral contract, see the [state table](docs/state-table.md), [invariants](docs/invariants.md), and [failure modes](docs/failure-modes.md). Verification commands and expected checks are in [docs/verification.md](docs/verification.md). Provenance is documented in [`PROVENANCE.md`](PROVENANCE.md).
