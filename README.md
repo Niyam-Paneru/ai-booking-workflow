@@ -9,19 +9,28 @@ This public sample comes from my broader private voice/receptionist work. It mak
 ## Booking state machine
 
 ```mermaid
+---
+config:
+  flowchart:
+    curve: linear
+    nodeSpacing: 28
+    rankSpacing: 42
+---
 flowchart TB
-    G["<b>GREETING</b>"] -->|begin| Q["<b>QUALIFY</b>"]
-    Q -->|eligible + confident| O["<b>OFFER_SLOT</b>"]
-    Q -->|ineligible or uncertain| H["<b>HANDOFF</b>"]
+    accTitle: Booking state machine
+    accDescr: Decision flow for booking state machine.
+    G["GREETING"] -->|begin| Q["QUALIFY"]
+    Q -->|eligible + confident| O["OFFER_SLOT"]
+    Q -->|ineligible or uncertain| H["HANDOFF"]
     O -->|no slots or unoffered choice| H
-    O -->|choose offered slot| C["<b>CONFIRM</b>"]
+    O -->|choose offered slot| C["CONFIRM"]
     C -->|change_slot| O
     C -->|mismatch raises, stay in CONFIRM| C
-    C -->|exact selected slot| B["<b>END</b><br/>Booking created"]
-    H -->|finish_handoff| E["<b>END</b><br/>No booking"]
-    classDef input fill:#e8e6df,stroke:#55534a,color:#20201d,stroke-width:2px;
-    classDef pass fill:#d2e5d8,stroke:#38734d,color:#183923,stroke-width:2px;
-    classDef stop fill:#f4dadd,stroke:#b14253,color:#611c29,stroke-width:2px;
+    C -->|exact selected slot| B["END<br/>Booking created"]
+    H -->|finish_handoff| E["END<br/>No booking"]
+    classDef input stroke-width:1.5px;
+    classDef pass stroke-width:2.5px;
+    classDef stop stroke-width:2px,stroke-dasharray:5 3;
     class G,Q,O,C input;
     class B pass;
     class H,E stop;
