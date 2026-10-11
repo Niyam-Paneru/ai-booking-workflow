@@ -17,3 +17,6 @@ Provider output contains blanks or repeated values. Response: normalize while pr
 
 ## Mid-conversation change of mind
 The caller changes slot after selection. Response: return to the offer state and clear the previous selection.
+
+## Textual Boolean bypasses qualification
+An untyped provider field or transcript-derived value contains `"false"` or `"true"`. Both are truthy in Python, so naive Boolean logic would allow booking even when eligibility or confidence is not explicitly confirmed. Response: accept only exact Boolean `True` for both, and hand off otherwise.

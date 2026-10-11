@@ -2,7 +2,9 @@ from __future__ import annotations
 
 
 def qualification_requires_handoff(*, eligible: bool, confident: bool) -> bool:
-    return not eligible or not confident
+    # Input often comes from untyped JSON/transcripts. "false" and 1 are
+    # truthy in Python, but neither is an explicit yes from the caller.
+    return eligible is not True or confident is not True
 
 
 def validate_confirmation(
