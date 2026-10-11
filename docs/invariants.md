@@ -8,3 +8,5 @@
 6. **An empty provider result never becomes a guessed appointment.**
 
 The conversation can be flexible. The side effect cannot.
+
+7. **Qualification is explicit, not truthiness-based.** Only actual Boolean `eligible=True` and `confident=True` can proceed to the offer state. Raw `"false"`, numeric `1`, missing values, and unrecognized states must hand off.
