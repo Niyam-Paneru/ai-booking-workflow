@@ -35,7 +35,7 @@ flowchart TB
     O -- "Select offered slot" --> C{"Confirm selected time?"}
     C -- "Exact match" --> B["Booking value created"]
     C -- "Change slot" --> O
-    C -- "Mismatch" --> X["Error; no booking"]
+    C -- "Mismatch" --> X["Error; state stays at CONFIRM"]
     classDef blocked fill:#F9EEE9,stroke:#A9694F,color:#603C2B;
     classDef done fill:#E9F5F0,stroke:#287F67,color:#1D5847;
     class H,X blocked;
