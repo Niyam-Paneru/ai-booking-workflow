@@ -1,10 +1,17 @@
 # AI Booking Workflow
 
-A deterministic booking-state core that only creates a booking value after the caller confirms a slot the system actually offered.
+A booking assistant offers 10:00 and 11:00. The caller asks for 2:00. A careless system says “confirmed.” This Python state machine does something less exciting and more useful: **it refuses to create a booking for a slot it never offered**.
 
-**Calendars are easy until someone books a time the calendar never offered.**
+Qualification, offered choices, exact confirmation, changes, and handoff are explicit states. The imaginary calendar does not get to invent availability — it has enough power already.
 
-This public sample comes from my broader private voice/receptionist work. It makes the booking rules reviewable on their own; I can build and adapt the surrounding reception workflows, calendar integrations, and applications to a project's needs.
+**Try it / check the behavior:**
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest discover -s tests
+```
+
+In-memory decision workflow only; no real calendar write or stale-slot revalidation. [Verification](docs/verification.md).
 
 ## Booking state machine
 
