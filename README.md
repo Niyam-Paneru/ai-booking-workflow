@@ -27,31 +27,19 @@ The code behind this: [state transitions](src/booking_workflow/fsm.py), [slot cl
 There is exactly one path to a booking value. Everything else either changes the selection or refuses to pretend.
 
 ```mermaid
----
-config:
-  flowchart:
-    curve: linear
-    nodeSpacing: 28
-    rankSpacing: 42
----
 flowchart TB
-    accTitle: Booking state machine
-    accDescr: Decision flow for booking state machine.
-    G["GREETING"] -->|begin| Q["QUALIFY"]
-    Q -->|eligible + confident| O["OFFER_SLOT"]
-    Q -->|ineligible or uncertain| H["HANDOFF"]
-    O -->|no slots or unoffered choice| H
-    O -->|choose offered slot| C["CONFIRM"]
-    C -->|change_slot| O
-    C -->|mismatch raises, stay in CONFIRM| C
-    C -->|exact selected slot| B["END<br/>Booking created"]
-    H -->|finish_handoff| E["END<br/>No booking"]
-    classDef input stroke-width:1.5px;
-    classDef pass stroke-width:2.5px;
-    classDef stop stroke-width:2px,stroke-dasharray:5 3;
-    class G,Q,O,C input;
-    class B pass;
-    class H,E stop;
+    G["Greeting"] --> Q{"Eligible and confident?"}
+    Q -- No --> H["Handoff — no booking"]
+    Q -- Yes --> O["Offer supplied time slots"]
+    O -- "No slots / unoffered choice" --> H
+    O -- "Select offered slot" --> C{"Confirm selected time?"}
+    C -- "Exact match" --> B["Booking value created"]
+    C -- "Change slot" --> O
+    C -- "Mismatch" --> X["Error; no booking"]
+    classDef blocked fill:#F9EEE9,stroke:#A9694F,color:#603C2B;
+    classDef done fill:#E9F5F0,stroke:#287F67,color:#1D5847;
+    class H,X blocked;
+    class B done;
 ```
 
 The [behavior tests](docs/verification.md) cover the normal path and the ways a booking can be rejected.
