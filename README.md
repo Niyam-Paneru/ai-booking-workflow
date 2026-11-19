@@ -22,13 +22,39 @@ My favourite feature is the absence of imaginary appointments.
 
 The code behind this: [state transitions](src/booking_workflow/fsm.py), [slot cleanup](src/booking_workflow/availability.py), [guardrails](src/booking_workflow/guardrails.py), and [tests](tests/).
 
-## Check it
+## The state machine, on one page
 
-Run from the repository root:
+There is exactly one path to a booking value. Everything else either changes the selection or refuses to pretend.
 
-```sh
-PYTHONPATH=src python -m unittest discover -s tests
+```mermaid
+---
+config:
+  flowchart:
+    curve: linear
+    nodeSpacing: 28
+    rankSpacing: 42
+---
+flowchart TB
+    accTitle: Booking state machine
+    accDescr: Decision flow for booking state machine.
+    G["GREETING"] -->|begin| Q["QUALIFY"]
+    Q -->|eligible + confident| O["OFFER_SLOT"]
+    Q -->|ineligible or uncertain| H["HANDOFF"]
+    O -->|no slots or unoffered choice| H
+    O -->|choose offered slot| C["CONFIRM"]
+    C -->|change_slot| O
+    C -->|mismatch raises, stay in CONFIRM| C
+    C -->|exact selected slot| B["END<br/>Booking created"]
+    H -->|finish_handoff| E["END<br/>No booking"]
+    classDef input stroke-width:1.5px;
+    classDef pass stroke-width:2.5px;
+    classDef stop stroke-width:2px,stroke-dasharray:5 3;
+    class G,Q,O,C input;
+    class B pass;
+    class H,E stop;
 ```
+
+The [behavior tests](docs/verification.md) cover the normal path and the ways a booking can be rejected.
 
 There's also a [state table](docs/state-table.md) if you want to inspect the transitions one by one.
 
