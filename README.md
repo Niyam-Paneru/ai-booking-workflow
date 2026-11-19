@@ -1,72 +1,37 @@
 # AI Booking Workflow
 
-A booking assistant offers 10:00 and 11:00. The caller asks for 2:00. A careless system says “confirmed.” This Python state machine does something less exciting and more useful: **it refuses to create a booking for a slot it never offered**.
+Imagine asking an automated receptionist for 2 PM after it offered you **10 AM or 11 AM**.
 
-Qualification, offered choices, exact confirmation, changes, and handoff are explicit states. The imaginary calendar does not get to invent availability — it has enough power already.
+A confident chatbot might just say, "Booked!" I would rather it admit it can't do that.
 
-**Try it / check the behavior:**
+This Python project is the boring but important part of a booking assistant: a state machine where the assistant can only confirm a slot that actually came from its offered list.
 
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest discover -s tests
+## Follow one booking
+
+`GREETING → QUALIFY → OFFER_SLOT → CONFIRM → END`
+
+The happy path is straightforward. The interesting part is everything that must **not** turn into a booking:
+
+- The caller doesn't qualify or the system isn't confident? **Handoff.**
+- No slots supplied? **Handoff**, not invented availability.
+- Caller chooses a time that wasn't offered? **Handoff.**
+- Confirmation doesn't match the selected time? **Error, no booking.**
+- Caller changes their mind? Clear the selection and go back to the offered slots.
+
+My favourite feature is the absence of imaginary appointments.
+
+The code behind this: [state transitions](src/booking_workflow/fsm.py), [slot cleanup](src/booking_workflow/availability.py), [guardrails](src/booking_workflow/guardrails.py), and [tests](tests/).
+
+## Check it
+
+Run from the repository root:
+
+```sh
+PYTHONPATH=src python -m unittest discover -s tests
 ```
 
-In-memory decision workflow only; no real calendar write or stale-slot revalidation. [Verification](docs/verification.md).
+There's also a [state table](docs/state-table.md) if you want to inspect the transitions one by one.
 
-## Booking state machine
+### Don't mistake a state machine for a calendar
 
-```mermaid
----
-config:
-  flowchart:
-    curve: linear
-    nodeSpacing: 28
-    rankSpacing: 42
----
-flowchart TB
-    accTitle: Booking state machine
-    accDescr: Decision flow for booking state machine.
-    G["GREETING"] -->|begin| Q["QUALIFY"]
-    Q -->|eligible + confident| O["OFFER_SLOT"]
-    Q -->|ineligible or uncertain| H["HANDOFF"]
-    O -->|no slots or unoffered choice| H
-    O -->|choose offered slot| C["CONFIRM"]
-    C -->|change_slot| O
-    C -->|mismatch raises, stay in CONFIRM| C
-    C -->|exact selected slot| B["END<br/>Booking created"]
-    H -->|finish_handoff| E["END<br/>No booking"]
-    classDef input stroke-width:1.5px;
-    classDef pass stroke-width:2.5px;
-    classDef stop stroke-width:2px,stroke-dasharray:5 3;
-    class G,Q,O,C input;
-    class B pass;
-    class H,E stop;
-```
-
-The important boundary is narrow: only an exact confirmation of a previously offered, currently selected slot creates `Booking(slot=...)`. Everything uncertain exits the booking path instead of inventing certainty.
-
-## What the workflow enforces
-
-- `GREETING → QUALIFY` is the only start path.
-- Qualification reaches `OFFER_SLOT` only when the caller is eligible and confidence is sufficient.
-- Supplied slots are trimmed and deduplicated; empty availability hands off instead of becoming a guessed appointment.
-- `CONFIRM` is reachable only after selecting a stored `offered_slot`; an unknown choice hands off.
-- A mismatched confirmation raises an error and creates no booking. `change_slot()` clears the selection and returns to `OFFER_SLOT`.
-
-## Code to inspect
-
-| File | Responsibility |
-|---|---|
-| [`availability.py`](src/booking_workflow/availability.py) | Normalize supplied slots without inventing any. |
-| [`guardrails.py`](src/booking_workflow/guardrails.py) | Qualification handoff and exact-confirmation checks. |
-| [`fsm.py`](src/booking_workflow/fsm.py) | Explicit booking states and transitions. |
-| [`models.py`](src/booking_workflow/models.py) | State enum and final `Booking` value. |
-| [`tests/`](tests/) | Availability, transition, and guardrail behavior. |
-
-## Boundary
-
-This is the booking decision boundary, not a live booking integration. It contains no provider SDK, persistence layer, patient data, clinic credentials, telephony, or external calendar write.
-
-It also does **not** implement stale-slot revalidation. The public implementation ends when the validated state machine creates a `Booking` value; a real provider write would need its own integration and concurrency controls.
-
-For the exact behavioral contract, see the [state table](docs/state-table.md), [invariants](docs/invariants.md), and [failure modes](docs/failure-modes.md). Verification commands and expected checks are in [docs/verification.md](docs/verification.md). Provenance is documented in [`PROVENANCE.md`](PROVENANCE.md).
+The outcome here is a Python `Booking` value. There is **no provider SDK, persistent booking, live availability check, or final stale-slot revalidation**. A real integration would still need a fresh availability check and a safe external write. [Provenance](PROVENANCE.md) · [verification](docs/verification.md).
