@@ -1,51 +1,30 @@
 # AI Booking Workflow
 
-Imagine asking an automated receptionist for 2 PM after it offered you **10 AM or 11 AM**.
+A caller asks for **2 PM**. The receptionist offered **10 AM and 11 AM**.
 
-A confident chatbot might just say, "Booked!" I would rather it admit it can't do that.
+A chatbot could say “Booked!” and hope reality updates its calendar to match. This one doesn't have that particular superpower.
 
-This Python project is the boring but important part of a booking assistant: a state machine where the assistant can only confirm a slot that actually came from its offered list.
+This is a Python booking **state machine**. It creates a booking value only when a caller confirms a slot actually supplied and offered during the conversation.
 
-## Follow one booking
+## How to disappoint a fictional appointment
 
-`GREETING → QUALIFY → OFFER_SLOT → CONFIRM → END`
+The normal sequence is **greeting → qualification → offer → confirmation → end**.
 
-The happy path is straightforward. The interesting part is everything that must **not** turn into a booking:
+| Caller or system does this | What the state machine does |
+| --- | --- |
+| No availability supplied | Handoff; no invented appointment |
+| Caller fails qualification or confidence threshold | Handoff |
+| Caller selects an unoffered time | Handoff, not “sure, why not?” |
+| Caller selects an offered time, then changes their mind | Clear selection and return to offered slots |
+| Confirmation differs from selected time | Error; don't create a booking |
+| Caller confirms the selected, offered time | Create a Python booking value |
 
-- The caller doesn't qualify or the system isn't confident? **Handoff.**
-- No slots supplied? **Handoff**, not invented availability.
-- Caller chooses a time that wasn't offered? **Handoff.**
-- Confirmation doesn't match the selected time? **Error, no booking.**
-- Caller changes their mind? Clear the selection and go back to the offered slots.
+There is only one successful booking path. Which feels restrictive until you consider the alternative: a receptionist with an infinite imagination and no actual appointments.
 
-My favourite feature is the absence of imaginary appointments.
+The code is split across [state transitions](src/booking_workflow/fsm.py), [availability cleanup](src/booking_workflow/availability.py), and [guardrails](src/booking_workflow/guardrails.py). Read the [state table](docs/state-table.md) for exact transitions and [behavior tests](docs/verification.md) for rejection cases.
 
-The code behind this: [state transitions](src/booking_workflow/fsm.py), [slot cleanup](src/booking_workflow/availability.py), [guardrails](src/booking_workflow/guardrails.py), and [tests](tests/).
+## Important: “booking value” ≠ “calendar booking”
 
-## The state machine, on one page
+There is **no live calendar, provider SDK, database-backed reservation, final stale-slot revalidation, or external booking write** in this repository. It's a tested state machine, not a deployed receptionist.
 
-There is exactly one path to a booking value. Everything else either changes the selection or refuses to pretend.
-
-```mermaid
-flowchart TB
-    G["Greeting"] --> Q{"Eligible and confident?"}
-    Q -- No --> H["Handoff — no booking"]
-    Q -- Yes --> O["Offer supplied time slots"]
-    O -- "No slots / unoffered choice" --> H
-    O -- "Select offered slot" --> C{"Confirm selected time?"}
-    C -- "Exact match" --> B["Booking value created"]
-    C -- "Change slot" --> O
-    C -- "Mismatch" --> X["Error; state stays at CONFIRM"]
-    classDef blocked fill:#F9EEE9,stroke:#A9694F,color:#603C2B;
-    classDef done fill:#E9F5F0,stroke:#287F67,color:#1D5847;
-    class H,X blocked;
-    class B done;
-```
-
-The [behavior tests](docs/verification.md) cover the normal path and the ways a booking can be rejected.
-
-There's also a [state table](docs/state-table.md) if you want to inspect the transitions one by one.
-
-### Don't mistake a state machine for a calendar
-
-The outcome here is a Python `Booking` value. There is **no provider SDK, persistent booking, live availability check, or final stale-slot revalidation**. A real integration would still need a fresh availability check and a safe external write. [Provenance](PROVENANCE.md) · [verification](docs/verification.md).
+A real booking integration would need fresh availability and a safely verified write. Until then, no customer should leave this code expecting a dentist at 2 PM. [Provenance](PROVENANCE.md) · [verification](docs/verification.md).
