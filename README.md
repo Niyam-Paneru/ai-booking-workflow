@@ -2,11 +2,11 @@
 
 A caller asks for **2 PM**. The receptionist offered **10 AM and 11 AM**.
 
-A chatbot could say “Booked!” and hope reality updates its calendar to match. This one doesn't have that particular superpower.
+A chatbot might say “Booked!” anyway. This workflow rejects the choice.
 
 This is a Python booking **state machine**. It creates a booking value only when a caller confirms a slot actually supplied and offered during the conversation.
 
-## How to disappoint a fictional appointment
+## What the workflow accepts and rejects
 
 The normal sequence is **greeting → qualification → offer → confirmation → end**.
 
@@ -19,7 +19,7 @@ The normal sequence is **greeting → qualification → offer → confirmation �
 | Confirmation differs from selected time | Error; don't create a booking |
 | Caller confirms the selected, offered time | Create a Python booking value |
 
-There is only one successful booking path. Which feels restrictive until you consider the alternative: a receptionist with an infinite imagination and no actual appointments.
+There is only one path that creates a booking value: selecting and confirming a time that was actually offered.
 
 The code is split across [state transitions](src/booking_workflow/fsm.py), [availability cleanup](src/booking_workflow/availability.py), and [guardrails](src/booking_workflow/guardrails.py). Read the [state table](docs/state-table.md) for exact transitions and [behavior tests](docs/verification.md) for rejection cases.
 
@@ -27,4 +27,4 @@ The code is split across [state transitions](src/booking_workflow/fsm.py), [avai
 
 There is **no live calendar, provider SDK, database-backed reservation, final stale-slot revalidation, or external booking write** in this repository. It's a tested state machine, not a deployed receptionist.
 
-A real booking integration would need fresh availability and a safely verified write. Until then, no customer should leave this code expecting a dentist at 2 PM. [Provenance](PROVENANCE.md) · [verification](docs/verification.md).
+A real booking integration would need fresh availability and a safely verified write. A returned Python value is not an appointment on a real calendar. [Provenance](PROVENANCE.md) · [verification](docs/verification.md).
