@@ -2,11 +2,11 @@
 
 A caller asks for **2 PM**. The receptionist offered **10 AM and 11 AM**.
 
-A chatbot might say “Booked!” anyway. This workflow rejects the choice.
+A very agreeable chatbot might say “Of course!” and invent an appointment. Unfortunately, the imaginary calendar can't tell the real receptionist.
 
-This is a Python booking **state machine**. It creates a booking value only when a caller confirms a slot actually supplied and offered during the conversation.
+I built this Python booking **state machine** so the assistant has to work with time slots it actually offered. It creates a booking value only after the caller confirms one of those slots.
 
-## What the workflow accepts and rejects
+## The appointments that don't exist
 
 The normal sequence is **greeting → qualification → offer → confirmation → end**.
 
@@ -14,7 +14,7 @@ The normal sequence is **greeting → qualification → offer → confirmation �
 | --- | --- |
 | No availability supplied | Handoff; no invented appointment |
 | Caller fails qualification or confidence threshold | Handoff |
-| Caller selects an unoffered time | Handoff, not “sure, why not?” |
+| Caller selects an unoffered time | Handoff; don't invent availability |
 | Caller selects an offered time, then changes their mind | Clear selection and return to offered slots |
 | Confirmation differs from selected time | Error; don't create a booking |
 | Caller confirms the selected, offered time | Create a Python booking value |
