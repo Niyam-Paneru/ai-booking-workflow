@@ -1,12 +1,13 @@
 # AI Booking Workflow
 
-Imagine a caller asking for **2 PM** when the assistant has only offered **10 AM and 11 AM**.
+**Assistant:** I have 10 AM or 11 AM.  
+**Caller:** How about 2 PM?  
+**Assistant:** You're booked!  
+**Calendar:** Sorry, who?
 
-An overly helpful chatbot can say “Booked!” with such confidence that you'd almost believe a calendar was involved. Unfortunately, the appointment exists exclusively in the chatbot's imagination.
+I built this Python state machine to keep that conversation honest. It creates a booking value only when the caller confirms a time the workflow actually offered. No creative interpretation of the calendar.
 
-This Python **state machine** doesn't get to invent appointments on its own. It creates a booking value only when the caller confirms a time the workflow actually offered.
-
-## A short list of appointments we are not making
+## The calendar gets the last word
 
 The normal sequence is **greeting → qualification → offer → confirmation → end**.
 
