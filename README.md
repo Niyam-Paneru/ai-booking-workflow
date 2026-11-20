@@ -4,7 +4,7 @@ Imagine a caller asking for **2 PM** when the assistant has only offered **10 AM
 
 An overly helpful chatbot can say “Booked!” with such confidence that you'd almost believe a calendar was involved. Unfortunately, the appointment exists exclusively in the chatbot's imagination.
 
-This Python **state machine** doesn't get to invent Tuesdays. It creates a booking value only when the caller confirms a time the workflow actually offered.
+This Python **state machine** doesn't get to invent appointments on its own. It creates a booking value only when the caller confirms a time the workflow actually offered.
 
 ## A short list of appointments we are not making
 
@@ -19,7 +19,19 @@ The normal sequence is **greeting → qualification → offer → confirmation �
 | Confirmation differs from selected time | Error; don't create a booking |
 | Caller confirms the selected, offered time | Create a Python booking value |
 
-There is only one path that creates a booking value: selecting and confirming a time that was actually offered.
+There is only one path that creates a booking value: selecting and confirming a time that was actually offered. Here's the whole decision in one picture; the table above covers the awkward details.
+
+```mermaid
+flowchart TB
+    G["Greeting"] --> Q{"Eligible and confident?"}
+    Q -- No --> H["Handoff; no booking"]
+    Q -- Yes --> O["Offer supplied slots"]
+    O -- "No slots or unoffered choice" --> H
+    O -- "Select offered slot" --> C{"Confirm selected time?"}
+    C -- "Exact match" --> B["Create booking value"]
+    C -- "Change slot" --> O
+    C -- "Mismatch" --> X["Error; no booking"]
+```
 
 The code is split across [state transitions](src/booking_workflow/fsm.py), [availability cleanup](src/booking_workflow/availability.py), and [guardrails](src/booking_workflow/guardrails.py). Read the [state table](docs/state-table.md) for exact transitions and [behavior tests](docs/verification.md) for rejection cases.
 
