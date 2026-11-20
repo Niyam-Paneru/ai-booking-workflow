@@ -1,12 +1,12 @@
 # AI Booking Workflow
 
-A caller asks for **2 PM**. The receptionist offered **10 AM and 11 AM**.
+Imagine a caller asking for **2 PM** when the assistant has only offered **10 AM and 11 AM**.
 
-A very agreeable chatbot might say “Of course!” and invent an appointment. Unfortunately, the imaginary calendar can't tell the real receptionist.
+An overly helpful chatbot can say “Booked!” with such confidence that you'd almost believe a calendar was involved. Unfortunately, the appointment exists exclusively in the chatbot's imagination.
 
-I built this Python booking **state machine** so the assistant has to work with time slots it actually offered. It creates a booking value only after the caller confirms one of those slots.
+This Python **state machine** doesn't get to invent Tuesdays. It creates a booking value only when the caller confirms a time the workflow actually offered.
 
-## The appointments that don't exist
+## A short list of appointments we are not making
 
 The normal sequence is **greeting → qualification → offer → confirmation → end**.
 
@@ -27,4 +27,4 @@ The code is split across [state transitions](src/booking_workflow/fsm.py), [avai
 
 There is **no live calendar, provider SDK, database-backed reservation, final stale-slot revalidation, or external booking write** in this repository. It's a tested state machine, not a deployed receptionist.
 
-A real booking integration would need fresh availability and a safely verified write. A returned Python value is not an appointment on a real calendar. [Provenance](PROVENANCE.md) · [verification](docs/verification.md).
+A real booking integration would need fresh availability and a safely verified write. A Python object is not a dentist's schedule, no matter how enthusiastic the chatbot sounds. [Provenance](PROVENANCE.md) · [verification](docs/verification.md).
